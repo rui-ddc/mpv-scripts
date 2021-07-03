@@ -8,7 +8,7 @@ period of silence.
 The default keybind is `Tab`. You can change this by adding
 the following line to your `input.conf`:
 ```
-KEY script-binding skip-to-silence
+KEY script-binding skip-intro
 ```
 
 In order to tweak the script parameters, you can place the
