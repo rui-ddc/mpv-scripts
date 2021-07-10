@@ -5,7 +5,7 @@ This script skips to the next silence in the file. The intended use for this is 
 ## Setup
 Download **skip-intro.lua** and save it to `/mpv/scripts/`
 
-The default keybind to *start/stop* the skip is `Tab`.
+The default keybind to *start/stop* the skip is `Tab`.<br />
 You can change this by adding to `mpv/input.conf` the following line:
 ```
 NEW_KEY script-binding keypress
