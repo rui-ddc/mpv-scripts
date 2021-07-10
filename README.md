@@ -6,7 +6,7 @@ To setup the script save it to a new folder called scripts at ~/.config/mpv
 
 The default keybind to start/stop the skip is `Tab`. You can change this by creating a new file called `input.conf` with the following line:
 ```
-'NEW KEY' script-binding keypress
+'INSERT_NEW_KEY_HERE' script-binding keypress
 ```
 
 <kbd>KEY</kbd> script-binding keypress
