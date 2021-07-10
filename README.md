@@ -1,9 +1,9 @@
-# skip-intro.lua #
+# skip-intro.lua
 
 This script skips to the next silence in the file. The intended use for this is to skip until the end of an opening sequence, at which point there's often a short period of silence.
 
-## Setup ##
-Download *skip-intro.lua* and save it to `/mpv/scripts/`
+## Setup
+Download **skip-intro.lua** and save it to `/mpv/scripts/`
 
 The default keybind to start/stop the skip is `Tab`. You can change this by creating a new file called `mpv/input.conf` with the following line:
 ```
