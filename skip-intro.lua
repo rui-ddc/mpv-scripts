@@ -1,139 +1,151 @@
---[[
-    * License: MIT
-    * Author : rui-ddc
-    * Link   : https://github.com/rui-ddc/skip-intro
-    *
-    * This script skips to the next silence in the file. The
-    * intended use for this is to skip until the end of an
-    * opening sequence, at which point there's often a short
-    * period of silence
---]]
-
+MAX_SPEED = 100
+NORMAL_SPEED = 1
+ONE_SECOND = 1
 skip = false
+-- Max noise (dB) and min duration (s) to trigger
+opts = { quietness = -30, duration = 0.1 }
 
-local opts = {
 
-    -- Maximum amount of noise to trigger
-    quietness = -30, -- dB
+function setOptions()
+    local options = require 'mp.options'
+    options.read_options(opts)
+end
 
-    -- Minimum duration of silence to trigger
-    duration  = 0.1  -- sec
+function setTime(time)
+    mp.set_property_number('time-pos', time)
+end
 
-}
+function getTime()
+    return mp.get_property_native('time-pos')
+end
 
-local options = require 'mp.options'
+function setSpeed(speed)
+    mp.set_property('speed', speed)
+end
 
-options.read_options(opts)
+function setPause(state)
+    mp.set_property_bool('pause', state)
+end
 
-af_table = mp.get_property_native("af")
-vf_table = mp.get_property_native("vf")
+function setMute(state)
+    mp.set_property_bool('mute', state)
+end
 
--- `silencedetect` is an audio filter that listens for silence
--- and emits text output with details whenever silence is detected
-af_table[#af_table + 1] = {
-    enabled = false,
-    label   = "skiptosilence",
-    name    = "lavfi",
-    params  = {graph = "silencedetect=noise=" .. opts.quietness .. "dB:d=" ..opts.duration}
-}
+function initAudioFilter()
+    local af_table = mp.get_property_native('af')
+    af_table[#af_table + 1] = {
+        enabled = false,
+        label   = 'silencedetect',
+        name    = 'lavfi',
+        params  = { graph = 'silencedetect=noise=' .. opts.quietness .. 'dB:d=' .. opts.duration }
+    }
+    mp.set_property_native('af', af_table)
+end
 
--- `nullsink` interrupts the video stream requests to the decoder,
--- which stops it from bogging down the fast-forward
--- `color` generates a blank image, which renders very quickly and
--- is good for fast-forwarding
-vf_table[#vf_table + 1] = {
-    enabled = false,
-    label   = "blackout",
-    name    = "lavfi"
-}
-
-mp.set_property_native("af", af_table)
-mp.set_property_native("vf", vf_table)
+function initVideoFilter()
+    local vf_table = mp.get_property_native('vf')
+    vf_table[#vf_table + 1] = {
+        enabled = false,
+        label   = 'blackout',
+        name    = 'lavfi',
+        params  = { graph = '' }
+    }
+    mp.set_property_native('vf', vf_table)
+end
 
 function setAudioFilter(state)
+    local af_table = mp.get_property_native('af')
     if #af_table > 0 then
         for i = #af_table, 1, -1 do
-            if af_table[i].label == "skiptosilence" then
+            if af_table[i].label == 'silencedetect' then
                 af_table[i].enabled = state
-                mp.set_property_native("af", af_table)
-                return
+                mp.set_property_native('af', af_table)
+                break
             end
         end
     end
 end
 
-function setVideoFilter(state, width, height)
+function dim(state)
+    local dim = { width = 0, height = 0 }
+    if state == true then
+        dim.width = mp.get_property_native('width')
+        dim.height = mp.get_property_native('height')
+    end
+    return dim.width .. 'x' .. dim.height
+end
+
+function setVideoFilter(state)
+    local vf_table = mp.get_property_native('vf')
     if #vf_table > 0 then
         for i = #vf_table, 1, -1 do
-            if vf_table[i].label == "blackout" then
+            if vf_table[i].label == 'blackout' then
                 vf_table[i].enabled = state
-                vf_table[i].params  = {graph = "nullsink,color=c=black:s=" .. width .. "x" .. height}
-                mp.set_property_native("vf", vf_table)
-                return
+                vf_table[i].params  = { graph = 'nullsink,color=c=black:s=' .. dim(state) }
+                mp.set_property_native('vf', vf_table)
+                break
             end
         end
     end
 end
 
-function foundSilence(name, value)
-    if value == "{}" or value == nil then
-        return -- Ignore {} and nil
+function silenceTrigger(name, value)
+    if value == '{}' or value == nil then
+        return
     end
 
-    skipTime = tonumber(string.match(value, "%d+%.?%d+"))
-    currTime = mp.get_property_native("time-pos")
-    if skipTime == nil or skipTime < currTime + 1 then
-        return -- Ignore anything less than a second ahead
+    skipTime = tonumber(string.match(value, '%d+%.?%d+'))
+    currTime = getTime()
+
+    if skipTime == nil or skipTime < currTime + ONE_SECOND then
+        return
     end
 
-    setAudioFilter(false)
-    setVideoFilter(false, 0, 0)
-
-    mp.unobserve_property(foundSilence)
-    
-    mp.set_property_bool("mute" , false)
-    mp.set_property     ("speed", 1    )
+    stopSkip()
+    setTime(skipTime)
     skip = false
-
-    mp.set_property_number("time-pos", skipTime)
 end
 
-function abortEvent()
-    setAudioFilter(false)
-    setVideoFilter(false, 0, 0)
-
-    mp.unobserve_property(foundSilence)
-
-    mp.set_property_bool("mute" , false)
-    mp.set_property     ("speed", 1    )
-
-    mp.set_property_number("time-pos", abortTime)
+function setAudioTrigger(state)
+    if state == true then
+        mp.observe_property('af-metadata/silencedetect', 'string', silenceTrigger)
+    else
+        mp.unobserve_property(silenceTrigger)   
+    end
 end
 
-function skipEvent()
-    -- Video jumps back to abortTime if skip is interrupted
-    abortTime = mp.get_property_native("time-pos")
-
-    local width  = mp.get_property_native("width")
-    local height = mp.get_property_native("height")
+function startSkip()
+    startTime = getTime()
+    -- This audio filter detects moments of silence
     setAudioFilter(true)
-    setVideoFilter(true, width, height)
-
-    -- Triggers whenever the `silencedetect` filter emits output
-    mp.observe_property("af-metadata/skiptosilence", "string", foundSilence)
-    
-    mp.set_property_bool("pause", false)
-    mp.set_property_bool("mute" , true )
-    mp.set_property     ("speed", 100  )
+    -- This video filter makes fast-forward faster
+    setVideoFilter(true)
+    setAudioTrigger(true)
+    setPause(false)
+    setMute(true)
+    setSpeed(MAX_SPEED)
 end
 
-function keyEvent()
+function stopSkip()
+    setAudioFilter(false)
+    setVideoFilter(false)
+    setAudioTrigger(false)
+    setMute(false)
+    setSpeed(NORMAL_SPEED)
+end
+
+function keypress()
     skip = not skip
     if skip then
-        skipEvent()
+        startSkip()
     else
-        abortEvent()
+        stopSkip()
+        setTime(startTime)
     end
 end
 
-mp.add_key_binding("Tab", "keyEvent", keyEvent)
+setOptions(opts)
+initAudioFilter()
+initVideoFilter()
+
+mp.add_key_binding('Tab', 'keypress', keypress)
