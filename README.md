@@ -1,6 +1,6 @@
 # skip-intro.lua
 
-This script skips to the next silence in the video. The intended use for this is to skip until the end of an opening sequence, at which point there's often a short period of silence.
+This script skips to the next moment of silence in the video. The intended use for this is to skip until the end of an opening sequence, at which point there's often a short period of silence.
 
 ## Setup
 Download **skip-intro.lua** and save it to `/mpv/scripts/`
