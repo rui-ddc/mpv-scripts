@@ -9,6 +9,8 @@ The default keybind to start/stop the skip is `Tab`. You can change this by crea
 'NEW KEY' script-binding keypress
 ```
 
+<kbd>KEY</kbd> script-binding keypress
+
 In order to tweak the script parameters, you can place the text below in a new file at `script-opts/skip-intro.conf` in mpv's user folder. The parameters will be automatically loaded on start.
 
 ```
