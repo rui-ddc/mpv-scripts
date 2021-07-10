@@ -5,14 +5,13 @@ This script skips to the next moment of silence in the video. The intended use f
 ## Setup
 Download **skip-intro.lua** and save it to `/mpv/scripts/`
 
-The default keybind to *start/stop* the skip is `Tab`.<br />
+The default keybind to *start/stop* skipping is `Tab`.<br />
 You can change this by adding to `mpv/input.conf` the following line:
 ```
 NEW_KEY script-binding keypress
 ```
 
-In order to tweak the script parameters, you can place the text below in a new file at `mpv/script-opts/skip-intro.conf` in mpv's user folder. The parameters will be automatically loaded on start.
-
+To tweak the script's parameters you can copy the following code to `mpv/script-opts/skip-intro.conf`:
 ```
 # Maximum noise (dB) to trigger
 quietness = -30
