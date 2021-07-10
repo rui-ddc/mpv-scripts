@@ -8,7 +8,7 @@ Download **skip-intro.lua** and save it to `/mpv/scripts/`.
 The default keybind to *start/stop* skipping is `Tab`.<br />
 You can change this by adding to `mpv/input.conf` the following line:
 ```
-NEW_KEY script-binding keypress
+NEW_KEY script-binding skip-key
 ```
 
 To tweak the script's parameters you can copy the following code to `mpv/script-opts/skip-intro.conf`:
