@@ -2,7 +2,7 @@
 
 This script skips to the next silence in the file. The intended use for this is to skip until the end of an opening sequence, at which point there's often a short period of silence.
 
-To setup the script save it to a new folder called scripts at ~/.config/mpv
+To setup the script save it to a new folder called scripts at `~/.config/mpv`
 
 The default keybind to start/stop the skip is `Tab`. You can change this by creating a new file called `input.conf` with the following line:
 ```
