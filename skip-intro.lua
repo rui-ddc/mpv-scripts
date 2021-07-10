@@ -148,4 +148,4 @@ setOptions(opts)
 initAudioFilter()
 initVideoFilter()
 
-mp.add_key_binding('Tab', 'keypress', keypress)
+mp.add_key_binding('Tab', 'skip-key', keypress)
