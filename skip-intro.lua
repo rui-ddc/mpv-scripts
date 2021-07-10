@@ -94,8 +94,8 @@ function silenceTrigger(name, value)
         return
     end
 
-    skipTime = tonumber(string.match(value, '%d+%.?%d+'))
-    currTime = getTime()
+    local skipTime = tonumber(string.match(value, '%d+%.?%d+'))
+    local currTime = getTime()
 
     if skipTime == nil or skipTime < currTime + ONE_SECOND then
         return
