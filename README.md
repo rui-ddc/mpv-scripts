@@ -17,5 +17,5 @@ To tweak the script's parameters you can copy the following code to `mpv/script-
 quietness = -30
 
 # Minimum silence duration (s) to trigger
-duration = 0.1
+duration = 0.5
 ```
