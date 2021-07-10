@@ -1,27 +1,20 @@
-## skip-intro.lua
+# skip-intro.lua #
 
-This script skips to the next silence in the file. The
-intended use for this is to skip until the end of an
-opening or ending sequence, at which point there's often a short
-period of silence.
+This script skips to the next silence in the file. The intended use for this is to skip until the end of an opening sequence, at which point there's often a short period of silence.
 
-The default keybind is `Tab`. You can change this by adding
-the following line to your `input.conf`:
+To setup the script save it to a new folder called scripts at ~/.config/mpv
+
+The default keybind to start/stop the skip is `Tab`. You can change this by creating a new file called `input.conf` with the following line:
 ```
-KEY script-binding skip-intro
+<kbd>NEW KEY</kbd> script-binding keypress
 ```
 
-In order to tweak the script parameters, you can place the
-text below in a new file at
-`script-opts/skip-intro.conf` in mpv's user folder. The
-parameters will be automatically loaded on start.
+In order to tweak the script parameters, you can place the text below in a new file at `script-opts/skip-intro.conf` in mpv's user folder. The parameters will be automatically loaded on start.
 
 ```
-# Maximum amount of noise to trigger, in terms of dB.
-# The default is -30 (yes, negative). -60 is very sensitive,
-# -10 is more tolerant to noise.
+# Maximum noise (dB) to trigger
 quietness = -30
 
-# Minimum duration of silence to trigger.
+# Minimum silence duration (s) to trigger
 duration = 0.1
 ```
